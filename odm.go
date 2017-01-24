@@ -47,9 +47,11 @@ func (goose *Goose) Connect(connectionString, dbName string) (*mgo.Session, *mgo
 func (goose *Goose) Definition(name string, definition interface{}) schema {
 	collection := goose.DB.C(name)
 	_schema := schema{}
-	_schema.Name = name
-	_schema.Definition = definition
-	_schema.Collection = collection
+	if goose.Schemas[name] == (schema{}) {
+		_schema.Name = name
+		_schema.Definition = definition
+		_schema.Collection = collection
+	}
 	goose.Schemas[name] = _schema
 	return goose.Schemas[name]
 }
@@ -118,7 +120,7 @@ func (sch *schema) Get(id string, selectData []string) bson.M {
 }
 
 // Update documents
-func (sch *schema) Update(id string, _doc interface{}) interface{} {
+func (sch *schema) Update(id string, _doc interface{}) (interface{}, interface{}) {
 	doc := _doc.(map[string]interface{})
 
 	var result interface{}
@@ -141,8 +143,7 @@ func (sch *schema) Update(id string, _doc interface{}) interface{} {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(d)
-	return result
+	return d, result
 }
 
 // Delete documents

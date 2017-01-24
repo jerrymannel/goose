@@ -12,8 +12,8 @@ func main() {
 	goose.Connect("localhost", "golang")
 	schema := goose.Definition("people", &People{})
 
-	// schema.Save(&People{"A", 10})
-	// schema.Save(&People{"A", 20})
+	schema.Save(&People{"Apple", 10})
+	schema.Save(&People{"A", 20})
 
 	// return
 
@@ -24,7 +24,7 @@ func main() {
 	log.Printf("Results (bson array) : %s\n", resultSet)
 	result1 := resultSet[0]
 
-	filter = []byte(`{"age":10}`)
+	filter = []byte(`{"name":/ppl/}`)
 	selectQuery = []string{"name", "_id"}
 	resultSet = schema.Index(1, 1, selectQuery, filter)
 	log.Printf("Result length : %d\n", len(resultSet))
@@ -51,7 +51,9 @@ func main() {
 	d := []byte(`{"age":100}`)
 	var data interface{}
 	bson.UnmarshalJSON(d, &data)
-	schema.Update(id1, data)
+	change, data := schema.Update(id1, data)
+	log.Println(change)
+	log.Println(data)
 
 	singleEntry1 = schema.Get(id1, []string{})
 	log.Printf("Get by ID 1: %s\n", singleEntry1)
@@ -66,32 +68,5 @@ func main() {
 	resultSet = schema.Index(1, 1, selectQuery, filter)
 	log.Printf("Result length : %d\n", len(resultSet))
 	log.Printf("Results (bson array) : %s\n", resultSet)
-
-	// id := "5884f8f62bb152b1d73ba010"
-	// d := []byte(`{"age":1231231231}`)
-	// d := []byte(`{"name":"A 0001"}`)
-
-	// log.Println(p)
-	// schema.Update(id, data)
-	// schema.Delete(id)
-
-	// s1 := []byte(`{"sourcingPartner":{"$nin": "MPS0"} }`)
-
-	// s3 := []byte(`{"status":{"$in":["Limited Approval", "Approved"]}}`)
-	// s4 := []byte(`{"parent":{"$exists":false}}`)
-	// log.Println(string(s1))
-	// log.Println(string(s2))
-	// log.Println(string(s3))
-	// log.Println(string(s4))
-
-	// var p interface{}
-	// bson.UnmarshalJSON(s1, &p)
-	// log.Println(p)
-	// log.Println(string(bs1))
-
-	// list := make([]string, 30)
-	// for i, _ := range list {
-	// 	schema.Save(&People{strings.Join([]string{"A ", strconv.Itoa(i)}, " "), i})
-	// }
 
 }
