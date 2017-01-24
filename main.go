@@ -1,4 +1,4 @@
-package main
+package goose
 
 import (
 	"log"
@@ -6,11 +6,16 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+type People struct {
+	Name string
+	Age  int
+}
+
 func main() {
 
 	goose := Init()
 	goose.Connect("localhost", "golang")
-	schema := goose.Definition("people", &People{})
+	schema := goose.Definition("people")
 
 	schema.Save(&People{"Apple", 10})
 	schema.Save(&People{"A", 20})

@@ -1,4 +1,4 @@
-package main
+package goose
 
 import (
 	"log"
@@ -44,24 +44,24 @@ func (goose *Goose) Connect(connectionString, dbName string) (*mgo.Session, *mgo
 	return session, db
 }
 
-func (goose *Goose) Definition(name string, definition interface{}) schema {
-	collection := goose.DB.C(name)
+func (goose *Goose) Definition(name string) schema {
 	_schema := schema{}
 	if goose.Schemas[name] == (schema{}) {
+		collection := goose.DB.C(name)
 		_schema.Name = name
-		_schema.Definition = definition
 		_schema.Collection = collection
+		goose.Schemas[name] = _schema
 	}
-	goose.Schemas[name] = _schema
 	return goose.Schemas[name]
 }
 
 // Insert a new document
-func (sch *schema) Save(doc interface{}) {
+func (sch *schema) Save(doc interface{}) error {
 	err := sch.Collection.Insert(doc)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("ERROR! %s\n", err)
 	}
+	return err
 }
 
 // Query documents in the collections
@@ -74,11 +74,13 @@ func (sch *schema) Index(page, count int, selectData []string, filter []byte) []
 	bson.UnmarshalJSON(filter, &filterQuery)
 	query := sch.Collection.Find(filterQuery).Sort("_id").Skip(skip).Limit(count)
 
-	selectQuery := bson.M{}
-	for _, v := range selectData {
-		selectQuery[v] = 1
+	if len(selectData) > 1 {
+		selectQuery := bson.M{}
+		for _, v := range selectData {
+			selectQuery[v] = 1
+		}
+		query = query.Select(selectQuery)
 	}
-	query = query.Select(selectQuery)
 
 	r := query.Iter()
 	var resultSet []bson.M
@@ -108,11 +110,13 @@ func (sch *schema) Count(filter []byte) int {
 func (sch *schema) Get(id string, selectData []string) bson.M {
 	query := sch.Collection.Find(bson.M{"_id": bson.ObjectIdHex(id)})
 
-	selectQuery := bson.M{}
-	for _, v := range selectData {
-		selectQuery[v] = 1
+	if len(selectData) > 1 {
+		selectQuery := bson.M{}
+		for _, v := range selectData {
+			selectQuery[v] = 1
+		}
+		query = query.Select(selectQuery)
 	}
-	query = query.Select(selectQuery)
 
 	var p bson.M
 	query.One(&p)
