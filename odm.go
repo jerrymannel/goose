@@ -124,23 +124,12 @@ func (sch *schema) Get(id string, selectData []string) bson.M {
 }
 
 // Update documents
-func (sch *schema) Update(id string, _doc interface{}) (interface{}, interface{}) {
+func (sch *schema) Update(id string, _doc interface{}) (interface{}, bson.M) {
+	var result bson.M
 	doc := _doc.(map[string]interface{})
-
-	var result interface{}
-	err := sch.Collection.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&result)
-	if err != nil {
-		log.Println(err)
-	}
-	mergedBson := result.(bson.M)
-	for k, v := range doc {
-		if mergedBson[k] != doc[k] && k != "_id" {
-			mergedBson[k] = v
-		}
-	}
-
+	delete(doc, "_id")
 	change := mgo.Change{
-		Update:    mergedBson,
+		Update:    bson.M{"$set": doc},
 		ReturnNew: true,
 	}
 	d, err := sch.Collection.Find(bson.M{"_id": bson.ObjectIdHex(id)}).Apply(change, &result)
@@ -151,9 +140,18 @@ func (sch *schema) Update(id string, _doc interface{}) (interface{}, interface{}
 }
 
 // Delete documents
-func (sch *schema) Delete(id string) {
+func (sch *schema) Delete(id string) error {
 	err := sch.Collection.Remove(bson.M{"_id": bson.ObjectIdHex(id)})
-	if err != nil {
-		log.Println(err)
+	return err
+}
+
+func (sch *schema) SetIndex(keys []string, unique, dropDups, backgroud, sparse bool) {
+	index := mgo.Index{
+		Key:        keys,
+		Unique:     unique,
+		DropDups:   dropDups,
+		Background: backgroud,
+		Sparse:     sparse,
 	}
+	sch.Collection.EnsureIndex(index)
 }

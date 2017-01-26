@@ -1,7 +1,9 @@
-package goose
+package main
 
 import (
 	"log"
+
+	"github.com/jerrymannel/goose"
 
 	"gopkg.in/mgo.v2/bson"
 )
@@ -13,15 +15,15 @@ type People struct {
 
 func main() {
 
-	goose := Init()
+	goose := goose.Init()
 	goose.Connect("localhost", "golang")
 	schema := goose.Definition("people")
 
+	// INSERT
 	schema.Save(&People{"Apple", 10})
 	schema.Save(&People{"A", 20})
 
-	// return
-
+	// GET values using filter
 	filter := []byte(`{"age":20}`)
 	selectQuery := []string{"name", "_id"}
 	resultSet := schema.Index(1, 1, selectQuery, filter)
@@ -46,12 +48,14 @@ func main() {
 	log.Printf("ID 1 : %s\n", objectID2)
 	id2 := objectID2.Hex()
 
+	// GET by ID
 	singleEntry1 := schema.Get(id1, []string{})
 	log.Printf("Get by ID 1 : %s\n", singleEntry1)
 
 	singleEntry2 := schema.Get(id2, []string{})
 	log.Printf("Get by ID 2 : %s\n", singleEntry2)
 
+	// UPDATE
 	log.Println("Updating age to 100")
 	d := []byte(`{"age":100}`)
 	var data interface{}
@@ -66,6 +70,7 @@ func main() {
 	singleEntry2 = schema.Get(id2, []string{})
 	log.Printf("Get by ID 2: %s\n", singleEntry2)
 
+	// DELETE
 	log.Println("Delete documents")
 	schema.Delete(id1)
 	schema.Delete(id2)
