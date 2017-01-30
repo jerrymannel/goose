@@ -66,7 +66,7 @@ goose := goose.Init()
 schema.Save(&People{"Apple", 10})
 ```
 
-## Paginated fetch
+### Paginated fetch
 
 `func (sch *schema) Index(page, count int, selectData []string, filter []byte) []bson.M`
 
@@ -78,31 +78,31 @@ resultSet := schema.Index(1, 1, selectQuery, filter)
 
 This returns an array of bsons.
 
-## Count
+### Count
 
 `func (sch *schema) Count(filter []byte) int`
 
 Given a filter, this function returns the number of matching documents.
 
-## Get
+### Get
 
 `func (sch *schema) Get(id string, selectData []string) bson.M`
 
 Fetches the document based on the `id`. If `selectData` is provided, then only those attributes of the document is retrieved.
 
-## Update
+### Update
 
 `func (sch *schema) Update(id string, _doc interface{}) (interface{}, bson.M)`
 
 Updates a document with `_doc` where the _id matches `id`
 
-## Delete
+### Delete
 
 `func (sch *schema) Delete(id string) error`
 
 Deletes the document where _id is the same as `id`
 
-## Set Index
+### Set Index
 
 `func (sch *schema) SetIndex(keys []string, unique, dropDups, backgroud, sparse bool)`
 
