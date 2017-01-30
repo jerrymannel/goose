@@ -1,9 +1,9 @@
-# Goose v1.0
+# Goose v0.1
 
 Version history
 |Version|Date  |
 |:----:|------|
-|1.0|27th Jan 2017|
+|0.1|31st Jan 2017|
 
 ## Introduction
 Goose is an ODM(Object Data Mapper) for Golang built on top of the [mgo](https://labix.org/mgo) library. 
@@ -89,4 +89,3 @@ Deletes the document where _id is the same as `id`
 
 Sets the indexes for the collection.
 Read more about how to set the indexes under *mgo package* [func (*Collection) EnsureIndex](https://godoc.org/gopkg.in/mgo.v2#Collection.EnsureIndex)
-
